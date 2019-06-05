@@ -1,0 +1,29 @@
+kind: "Template"
+apiVersion: "v1"
+metadata:
+  name: "springboot-demo" 
+parameters:
+- description: "The version of the application"
+  name: "VERSION"
+  value: "latest"
+  required: true
+objects:
+- kind: "BuildConfig"
+  apiVersion: "v1"
+  metadata:
+    name: "springboot-demo" 
+  spec:
+    source: 
+      type: "Binary"
+    strategy: 
+      type: "Docker"
+      dockerStrategy:
+         dockerfilePath: kube/Dockerfile
+    output: 
+      to:
+        kind: "ImageStreamTag"
+        name: "springboot-demo:${VERSION}"
+- kind: "ImageStream"
+  apiVersion: "v1"
+  metadata:
+    name: "springboot-demo"

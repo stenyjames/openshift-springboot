@@ -1,0 +1,79 @@
+# defines the deployment configuration
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      application: ${APPLICATION_NAME}
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: ${APPLICATION_NAME}
+    strategy:
+      type: Rolling
+      rollingParams:
+        intervalSeconds: 1
+        timeoutSeconds: 60
+        updatePeriodSeconds: 1
+    template:
+      metadata:
+        name: ${APPLICATION_NAME}
+        labels:
+          deploymentconfig: ${APPLICATION_NAME}
+          application: ${APPLICATION_NAME}
+      spec:
+        # this is our custom service account, that might have more rights
+        serviceAccount: dashboard
+        containers:
+        - name: ${APPLICATION_NAME}
+          image: ${APPLICATION_NAME}:latest
+          # app config through env variables
+          env:
+          - name: DASHBOARD_TITLE
+            value: ${DASHBOARD_TITLE}
+          - name: PORT
+            value: "8080"
+          - name: GO_ENV
+            value: prod # use "dev" if you want to disable caching
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+    triggers:
+    # causes a new deployment to be created any time the replication controller template changes
+    - type: ConfigChange
+    # causes a new deployment to be created each time a new version of the image is available
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        from:
+          kind: ImageStreamTag
+          name: ${APPLICATION_NAME}:latest
+        containerNames:
+        - ${APPLICATION_NAME}
+  status: {}
+
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      application: ${APPLICATION_NAME}
+  spec:
+    selector:
+      deploymentconfig: ${APPLICATION_NAME}
+    ports:
+    - port: 8080
+
+- kind: Route
+  apiVersion: v1
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      application: ${APPLICATION_NAME}
+  spec:
+    host: ${ROUTE_DNS}
+    to:
+      kind: Service
+      name: ${APPLICATION_NAME}

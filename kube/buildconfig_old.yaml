@@ -1,0 +1,41 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: openshift-dashboard
+  annotations:
+    description: Build and deploy the OpenShift dashboard application.
+    tags: openshift,dashboard
+labels:
+  # list of labels that are applied to every object during the template to config transformation
+  template: openshift-dashboard
+
+parameters:
+
+- name: APPLICATION_NAME
+  description: The name of the application
+  value: dashboard
+- name: DASHBOARD_TITLE
+  description: The title of the dashboard
+  value: OpenShift Dashboard
+- name: ROUTE_DNS
+  description: The DNS to use for the route
+  value: 
+
+objects:
+
+# creates a specific service account for running the application
+# so that you can give it special rights to view other projects.
+- kind: ServiceAccount
+  apiVersion: v1
+  metadata:
+    name: dashboard
+
+# defines a wrapper on top of our newly built image
+# (this is used to trigger a deployment if the image changes = has been rebuilt)
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      application: ${APPLICATION_NAME}
+
