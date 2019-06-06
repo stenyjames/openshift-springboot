@@ -1,0 +1,63 @@
+
+apiVersion: v1
+kind: ImageStream
+metadata:
+    name: springboot-demo
+	
+	
+	
+	
+
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  name: springboot-demo
+spec:
+  source: 
+    type: Binary
+  strategy: 
+    type: Docker
+    dockerStrategy:
+       dockerfilePath: kube/Dockerfile
+  output: 
+      to:
+        kind: ImageStreamTag
+        name: springboot-demo:latest
+		
+		
+		
+		
+		
+		
+kind: "DeploymentConfig"
+apiVersion: "v1"
+metadata:
+  name: "springboot-demo"
+spec:
+  template: 
+    metadata:
+      labels:
+        name: "springboot-demo"
+    spec:
+      containers:
+        - name: "springboot-demo"
+          image: "springboot-demo:latest"
+          ports:
+            - containerPort: 8080
+              protocol: "TCP"
+  replicas: 5 
+  triggers:
+    - type: "ConfigChange" 
+    - type: "ImageChange" 
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - "springboot-demo"
+        from:
+          kind: "ImageStreamTag"
+          name: "springboot-demo:latest"
+  strategy: 
+    type: "Rolling"
+  paused: false 
+  revisionHistoryLimit: 2 
+  minReadySeconds: 0 
