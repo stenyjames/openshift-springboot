@@ -5,7 +5,7 @@ MAINTAINER steny.james
 # Install prepare infrastructure
 #RUN yum -y update && \
 RUN yum -y install wget && \
-yum -y install tar
+ yum -y install tar
 
 # Prepare environment 
 #ENV JAVA_HOME /opt/java
@@ -60,8 +60,11 @@ RUN ls
 
 #docker image build -t your_name/some-app-image ./
 
+
+# This default user is created in the openshift/base-centos7 image
+USER tomcat
+
 EXPOSE 8080
 EXPOSE 8009
 
-USER root
 CMD ["tomcat.sh"]
