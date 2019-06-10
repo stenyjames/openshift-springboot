@@ -33,3 +33,4 @@ objects:
     name: "${APP_NAME}"
 
 #oc process -f build-config-template.yaml -o json APP_NAME=myspringbootapp VERSION=2.0 | oc apply -f -
+#oc start-build springboot-demo-one --from-dir=appfolder
