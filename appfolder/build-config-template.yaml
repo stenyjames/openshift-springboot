@@ -1,0 +1,35 @@
+kind: "Template"
+apiVersion: "v1"
+metadata:
+  name: "${APP_NAME}"
+parameters:
+- description: "The version of the application"
+  name: "VERSION"
+  value: "latest"
+  required: true
+- description: "The name of the application"
+  name: "APP_NAME"
+  value: "springboot-demo"
+  required: true
+objects:
+- kind: "BuildConfig"
+  apiVersion: "v1"
+  metadata:
+    name: "${APP_NAME}"
+  spec:
+    source:
+      type: "Binary"
+    strategy:
+      type: "Docker"
+      dockerStrategy:
+         dockerfilePath: Dockerfile
+    output:
+      to:
+        kind: "ImageStreamTag"
+        name: "${APP_NAME}:${VERSION}"
+- kind: "ImageStream"
+  apiVersion: "v1"
+  metadata:
+    name: "${APP_NAME}"
+
+#oc process -f build-config-template.yaml -o json APP_NAME=myspringbootapp VERSION=2.0 | oc apply -f -
